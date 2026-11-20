@@ -1,0 +1,13 @@
+{
+  "name": "@sentinel/api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": { "dev": "tsx watch src/server.ts", "start": "tsx src/server.ts" },
+  "dependencies": {
+    "@fastify/cors": "^10.0.2",
+    "@sentinel/agents": "1.0.0",
+    "@sentinel/shared": "1.0.0",
+    "fastify": "^5.2.1"
+  }
+}

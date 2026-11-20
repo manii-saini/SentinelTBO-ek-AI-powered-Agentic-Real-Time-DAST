@@ -1,0 +1,14 @@
+[
+  { "pathPrefix": "/api/bookings", "owner": "Priya Nair", "team": "Booking Core", "slack": "#booking-core" },
+  { "pathPrefix": "/api/book", "owner": "Priya Nair", "team": "Booking Core", "slack": "#booking-core" },
+  { "pathPrefix": "/api/hold", "owner": "Priya Nair", "team": "Booking Core", "slack": "#booking-core" },
+  { "pathPrefix": "/api/pay", "owner": "Rahul Mehta", "team": "Payments", "slack": "#payments-oncall" },
+  { "pathPrefix": "/api/cancel", "owner": "Rahul Mehta", "team": "Payments", "slack": "#payments-oncall" },
+  { "pathPrefix": "/api/supplier", "owner": "Dana Iyer", "team": "Supplier Integrations", "slack": "#supplier-eng" },
+  { "pathPrefix": "/api/invoices", "owner": "Rahul Mehta", "team": "Payments", "slack": "#payments-oncall" },
+  { "pathPrefix": "/internal", "owner": "Platform SRE", "team": "Platform", "slack": "#platform-sre" },
+  { "pathPrefix": "/v1", "owner": "Platform SRE", "team": "Platform", "slack": "#platform-sre" },
+  { "pathPrefix": "/api/v2", "owner": "Rahul Mehta", "team": "Payments", "slack": "#payments-oncall" },
+  { "pathPrefix": "/api/search", "owner": "Arjun Rao", "team": "Search & Fares", "slack": "#search-fares" },
+  { "pathPrefix": "/", "owner": "Unassigned", "team": "Triage", "slack": "#security-triage" }
+]

@@ -1,0 +1,33 @@
+{
+  "name": "sentinel-tbo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "SentinelTBO — Agentic Real-Time DAST control plane (staging only)",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n mock,api,web -c yellow,cyan,green \"npm:dev:mock\" \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:mock": "tsx watch apps/mock/src/server.ts",
+    "dev:api": "tsx watch apps/api/src/server.ts",
+    "dev:web": "vite --config apps/web/vite.config.ts",
+    "build": "npm run build --workspaces --if-present",
+    "build:web": "vite build --config apps/web/vite.config.ts",
+    "start": "node apps/api/dist/server.js",
+    "seed": "tsx packages/agents/src/seed.ts",
+    "demo": "tsx scripts/demo.ts",
+    "test": "tsx --test packages/agents/test/*.test.ts",
+    "typecheck": "tsc -p tsconfig.base.json --noEmit",
+    "lint": "tsc -p tsconfig.base.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "concurrently": "^9.1.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
