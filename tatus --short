@@ -1,0 +1,153 @@
+warning: in the working copy of '.gitignore', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'main.py', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/.gitignore b/.gitignore[m
+[1mindex 69c3311..188559b 100644[m
+[1m--- a/.gitignore[m
+[1m+++ b/.gitignore[m
+[36m@@ -1,8 +1,40 @@[m
+[32m+[m[32m# Python[m
+[32m+[m[32m__pycache__/[m
+[32m+[m[32m*.py[cod][m
+[32m+[m[32m*.pyo[m
+[32m+[m[32m*.pyd[m
+[32m+[m[32m.Python[m
+[32m+[m[32m.venv/[m
+[32m+[m[32mvenv/[m
+[32m+[m[32mENV/[m
+[32m+[m[32m.pytest_cache/[m
+[32m+[m[32m.mypy_cache/[m
+[32m+[m
+[32m+[m[32m# Node/legacy[m
+ node_modules/[m
+[31m-dist/[m
+[31m-.env[m
+[31m-*.db[m
+[31m-*.db-shm[m
+[31m-*.db-wal[m
+[32m+[m[32mapps/web/dist/[m
+[32m+[m[32mapps/web/node_modules/[m
+[32m+[m[32mnpm-debug.log*[m
+[32m+[m[32myarn-debug.log*[m
+[32m+[m[32myarn-error.log*[m
+[32m+[m
+[32m+[m[32m# OS/editor[m
+ .DS_Store[m
+[31m-.vite/[m
+[32m+[m[32mThumbs.db[m
+[32m+[m[32m.vscode/[m
+[32m+[m[32m.idea/[m
+[32m+[m
+[32m+[m[32m# Streamlit/secrets/runtime[m
+[32m+[m[32m.streamlit/secrets.toml[m
+[32m+[m[32m.streamlit-*.log[m
+[32m+[m[32m.streamlit_runtime/[m
+[32m+[m
+[32m+[m[32m# Local DB/runtime artifacts[m
+[32m+[m[32mdata/*.db-shm[m
+[32m+[m[32mdata/*.db-wal[m
+[32m+[m[32mdata/sentinel_streamlit.db[m
+[32m+[m[32mdata/test*.db[m
+[32m+[m
+[32m+[m[32m# Temp[m
+[32m+[m[32m/tmp/[m
+[32m+[m[32m*.tmp[m
+[1mdiff --git a/main.py b/main.py[m
+[1mindex dde16c5..9d58801 100644[m
+[1m--- a/main.py[m
+[1m+++ b/main.py[m
+[36m@@ -1,193 +1,540 @@[m
+[31m-import os[m
+[31m-import signal[m
+[31m-import socket[m
+[31m-import subprocess[m
+[31m-import sys[m
+[32m+[m[32mfrom __future__ import annotations[m
+[32m+[m
+[32m+[m[32mimport json[m
+ import time[m
+[32m+[m[32mfrom datetime import datetime, timezone[m
+ from pathlib import Path[m
+[32m+[m[32mfrom typing import Any[m
+ [m
+[32m+[m[32mimport pandas as pd[m
+[32m+[m[32mimport plotly.express as px[m
+[32m+[m[32mimport plotly.graph_objects as go[m
+ import streamlit as st[m
+ [m
+[31m-ROOT = Path(__file__).resolve().parent[m
+[32m+[m[32mfrom sentinel.config import ROOT[m
+[32m+[m[32mfrom sentinel.openapi import generate_openapi[m
+[32m+[m[32mfrom sentinel.orchestrator import Orchestrator[m
+[32m+[m[32mfrom sentinel.severity import TEST_CLASS_LABEL[m
+[32m+[m[32mfrom sentinel.store import Store[m
+ [m
+[31m-st.set_page_config(page_title="SentinelTBO Host", page_icon="🛡️", layout="wide")[m
+[32m+[m[32mst.set_page_config(page_title="SentinelTBO", page_icon="🛡️", layout="wide", initial_sidebar_state="expanded")[m
+ [m
+[31m-SERVICES = {[m
+[31m-    "mock": {"cmd": ["npm", "run", "dev:mock"], "port": 4000, "url": "http://127.0.0.1:4000"},[m
+[31m-    "api": {"cmd": ["npm", "run", "dev:api"], "port": 3001, "url": "http://127.0.0.1:3001"},[m
+[31m-    "web": {"cmd": ["npm", "run", "dev:web"], "port": 5173, "url": "http://127.0.0.1:5173"},[m
+[31m-}[m
+[32m+[m[32mCUSTOM_CSS = """[m
+[32m+[m[32m<style>[m
+[32m+[m[32m:root { --bg:#070b10; --panel:#0f1720; --panel2:#0b1118; --line:#1d2a37; --text:#d5e0e8; --muted:#8aa0b2; --cyan:#22d3ee; --green:#34d399; --amber:#fbbf24; --red:#fb7185; }[m
+[32m+[m[32m.stApp { background: radial-gradient(circle at top, #102033 0, #070b10 45%, #05080c 100%); color: var(--text); }[m
+[32m+[m[32m[data-testid="stSidebar"] { background: linear-gradient(180deg,#0b1118 0%,#091018 100%); border-right: 1px solid #182635; }[m
+[32m+[m[32m.block-container { padding-top: 1.2rem; padding-bottom: 2rem; max-width: 1600px; }[m
+[32m+[m[32m.panel { background: rgba(15,23,32,.92); border: 1px solid var(--line); border-radius: 12px; padding: 1rem 1rem; box-shadow: 0 10px 30px rgba(0,0,0,.25); }[m
+[32m+[m[32m.metric { background: rgba(11,17,24,.85); border: 1px solid #1a2735; border-radius: 10px; padding: .8rem 1rem; min-height: 92px; }[m
+[32m+[m[32m.metric .label { font-size:.72rem; text-transform:uppercase; letter-spacing:.12em; color: var(--muted); }[m
+[32m+[m[32m.metric .value { font-size:1.7rem; font-weight:700; margin-top:.2rem; font-variant-numeric: tabular-nums; }[m
+[32m+[m[32m.metric .hint { font-size:.72rem; color:#70879a; margin-top:.15rem; }[m
+[32m+[m[32m.badge { display:inline-block; padding:.15rem .5rem; border-radius:999px; font-size:.68rem; font-weight:700; letter-spacing:.04em; border:1px solid #294055; background:#112030; color:#bcd0de; margin-right:.25rem; }[m
+[32m+[m[32m.badge.critical,.badge.red { color:#fecdd3; background:rgba(251,113,133,.12); border-color:rgba(251,113,133,.35); }[m
+[32m+[m[32m.badge.high,.badge.amber { color:#fde68a; background:rgba(251,191,36,.12); border-color:rgba(251,191,36,.35); }[m
+[32m+[m[32m.badge.medium,.badge.violet { color:#ddd6fe; background:rgba(139,92,246,.12); border-color:rgba(139,92,246,.35); }[m
+[32m+[m[32m.badge.low,.badge.cyan,.badge.info { color:#a5f3fc; background:rgba(34,211,238,.12); border-color:rgba(34,211,238,.35); }[m
+[32m+[m[32m.badge.green,.badge.closed { color:#bbf7d0; background:rgba(52,211,153,.12); border-color:rgba(52,211,153,.35); }[m
+[32m+[m[32m.small-muted { color: var(--muted); font-size:.78rem; }[m
+[32m+[m[32m.pipeline { display:grid; grid-template-columns: repeat(9, minmax(0,1fr)); gap:.5rem; }[m
+[32m+[m[32m.stage { background:#0b1118; border:1px solid #1b2938; border-radius:10px; padding:.65rem; min-height:105px; }[m
+[32m+[m[32m.stage .name { font-size:.72rem; font-weight:700; color:#dce8f0; }[m
+[32m+[m[32m.stage .agent { font-size:.64rem; color:#7890a3; font-family: ui-monospace, SFMono-Regular, monospace; margin-top:.15rem; }[m
+[32m+[m[32m.stage .detail { font-size:.66rem; color:#9fb2c2; margin-top:.45rem; line-height:1.3; }[m
+[32m+[m[32m.stage.done { border-color: rgba(52,211,153,.35); } .stage.running { border-color: rgba(34,211,238,.55); box-shadow: inset 0 0 0 1px rgba(34,211,238,.15); } .stage.error { border-color: rgba(251,113,133,.45); }[m
+[32m+[m[32mdiv[data-testid="stDataFrame"] { border: 1px solid #1b2938; border-radius: 10px; overflow:hidden; }[m
+[32m+[m[32m.stButton>button { border-radius:8px; border:1px solid #284055; background:#122131; color:#e5eef5; }[m
+[32m+[m[32m.stButton>button:hover { border-color:#22d3ee; color:#cffafe; }[m
+[32m+[m[32m</style>[m
+[32m+[m[32m"""[m
+[32m+[m[32mst.markdown(CUSTOM_CSS, unsafe_allow_html=True)[m
+ [m
+[32m+[m[32mPAGES = [[m
+[32m+[m[32m    "Mission Control", "Change Detection", "Knowledge Graph", "API Inventory", "Attack Planner",[m
+[32m+[m[32m    "Execution & Safety", "Approval Queue", "Findings", "Reports & Tickets", "Retest", "Rules of Engagement",[m
+[32m+[m[32m][m
+ [m
+[31m-def port_open(port: int, host: str = "127.0.0.1") -> bool:[m
+[31m-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:[m
+[31m-        s.settimeout(0.25)[m
+[31m-        return s.connect_ex((host, port)) == 0[m
+ [m
+[32m+[m[32mdef get_orchestrator() -> Orchestrator:[m
+[32m+[m[32m    if "orch" not in st.session_state:[m
+[32m+[m[32m        # Default local DB; allow optional Streamlit secret override when configured.[m
+[32m+[m[32m        db_path = ROOT / "data" / "sentinel_streamlit.db"[m
+[32m+[m[32m        try:[m
+[32m+[m[32m            secret_db = st.secrets.get("SENTINEL_DB", "")[m
+[32m+[m[32m            if secret_db:[m
+[32m+[m[32m                db_path = Path(str(secret_db))[m
+[32m+[m[32m        except Exception:[m
+[32m+[m[32m            pass[m
+[32m+[m[32m        st.session_state.orch = Orchestrator(Store(db_path))[m
+[32m+[m[32m        st.session_state.last_event_id = None[m
+[32m+[m[32m    return st.session_state.orch[m
+ [m
+[31m-def ensure_state():[m
+[31m-    st.session_state.setdefault("procs", {})  # name -> pid[m
+[31m-    st.session_state.setdefault("logs", {})   # name -> list[str][m
+ [m
+[32m+[m[32mdef time_ago(ts: int | None) -> str:[m
+[32m+[m[32m    if not ts: return "never"[m
+[32m+[m[32m    diff =

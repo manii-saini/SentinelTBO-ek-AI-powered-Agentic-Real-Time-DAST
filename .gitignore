@@ -1,8 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+ENV/
+.pytest_cache/
+.mypy_cache/
+
+# Node/legacy
 node_modules/
-dist/
-.env
-*.db
-*.db-shm
-*.db-wal
+apps/web/dist/
+apps/web/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS/editor
 .DS_Store
-.vite/
+Thumbs.db
+.vscode/
+.idea/
+
+# Streamlit/secrets/runtime
+.streamlit/secrets.toml
+.streamlit-*.log
+.streamlit_runtime/
+
+# Local DB/runtime artifacts
+data/*.db-shm
+data/*.db-wal
+data/sentinel_streamlit.db
+data/test*.db
+
+# Temp
+/tmp/
+*.tmp
